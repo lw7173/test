@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>购物车</title>
+    <script src="js/jquery-1.11.2.js"></script>
+</head>
+<body>
+<script>
+
+    var goods = [{id:1,name:"包",price:998},{id:2,name:"衣服",price:336},{id:3,name:"球",price:200},{id:4,name:"键盘",price:998}];
+
+    var cart = [];//购物车
+
+    /**
+     * 添加到购物车
+     * @param id
+     */
+    function joinCart(id){
+        var flag = false;//假设数组中没有要添加的商品
+        for(var i = 0 ; i < cart.length;i++){
+            if(cart[i].gid == id){
+                flag = true;
+                cart[i].count++;//商品数量加1
+                break;
+            }
+        }
+        if(!flag){//数组中没有该商品
+            var  good = {gid:id,count:1};
+            cart.push(good);//添加到购物车
+        }
+        showCart();
+
+    }
+</script>
+<!--显示商品-->
+<span>包</span> <input type="button" value="加入购物车" onclick="joinCart(1)" ><br>
+<span>衣服</span> <input type="button" value="加入购物车" onclick="joinCart(2)"><br>
+<span>球</span> <input type="button" value="加入购物车" onclick="joinCart(3)"><br>
+<span>键盘</span> <input type="button" value="加入购物车" onclick="joinCart(4)"><br>
+
+<!--显示购物车-->
+<div id="showCart"></div>
+<script>
+
+    var spans = $("span");
+    //可以这样循环。但是返回元素js对象
+    /*for(var i = 0 ;i < spans.length;i++){
+        alert(spans[i].innerText);
+    }*/
+
+   /* spans.each(function(i,dom){//jq循环 可以循环选择器选择的多个标签
+        dom = $(dom);
+        alert(i+dom.text());
+    })*/
+
+    /*$.each(goods,function(i,dom){//jq循环 可以循环自己封装的数据
+        alert(i+dom.name);
+    });*/
+
+    var a = ["a","b","c"];
+    // a['e'] = "f";
+    a.forEach(function(value,index){//原理还是普通的for循环
+        alert(value+"==="+index);
+    })
+
+
+
+
+    /**
+     *通过id找到商品
+     * @param gid
+     * @returns {*}
+     */
+    function getGoodsById(gid){
+        var good = null;
+        for(var i = 0 ;i < goods.length;i++){
+            if(goods[i].id == gid){
+                good = goods[i];
+                break;
+            }
+        }
+        return good;
+    }
+
+    /**
+     * 显示购物车
+     */
+    function showCart(){
+        var showCart = $("#showCart");
+        showCart.html("");
+        //添加数据
+        for(var i = 0 ; i < cart.length;i++){
+            var good = cart[i];//购物车的商品
+            var div = $("<div></div>");
+            div.css("width","100%")
+            div.css("height","30px")
+            showCart.append(div);
+            var obj = getGoodsById(good.gid);//具体的商品
+            var showName = $("<span></span>");
+            showName.text(obj.name);
+            div.append(showName);
+            //单价
+            var showPrice = $("<span></span>");
+            showPrice.text(obj.price);
+            div.append(showPrice);
+            //数量
+            var minus = $("<input type='button' value='-'>");
+            div.append(minus);
+            var count = $("<input type='text' style='width: 20px;'>");
+            count.val(good.count);
+            div.append(count);
+            var plus = $("<input type='button' value='+'>");
+            div.append(plus);
+
+            //总价
+            var showTotalPrice = $("<span></span>");
+            showTotalPrice.text(obj.price*parseInt(count.val()));
+            div.append(showTotalPrice);
+            minus.on("click",{"good":good,"count":count,"operator":"-","showTotalPrice":showTotalPrice},function (event){
+                var good = event.data.good;
+                var count = event.data.count;
+                var operator = event.data.operator;
+                var showTotalPrice = event.data.showTotalPrice;
+                changeCount(good,count,operator,showTotalPrice);
+            });
+            plus.on("click",{"good":good,"count":count,"operator":"+","showTotalPrice":showTotalPrice},function (event){
+                var good = event.data.good;
+                var count = event.data.count;
+                var operator = event.data.operator;
+                var showTotalPrice = event.data.showTotalPrice;
+                changeCount(good,count,operator,showTotalPrice);
+            });
+        }
+    }
+
+    /**
+     * 改变数量
+     * @param id
+     * @param count
+     * @param operator
+     */
+    function changeCount(good,count,operator,showTotalPrice){
+
+        if(operator == "+"){
+            good.count++;
+        }else if(operator == "-"){
+            if(good.count > 0)
+            good.count--;
+        }
+        count.val(good.count);
+        var obj = getGoodsById(good.gid);
+        showTotalPrice.text(good.count*obj.price)
+    }
+
+</script>
+</body>
+</html>
